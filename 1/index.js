@@ -7,6 +7,30 @@ const bodyParser = require("body-parser");
 
 const fileName = "test.json";
 
+const fileExist = function (req, res, next) {
+  let method = req.method;
+  switch (method) {
+    case "PUT":
+      if (!fs.existsSync("./test.json")) {
+        res.status(500).json({ message: "File is not found" });
+      } else {
+        next();
+      }
+      break;
+    case "POST":
+      if (fs.existsSync("./test.json")) {
+        res.status(500).json({ message: "File already created" });
+      } else {
+        next();
+      }
+      break;
+    default:
+      next();
+      break;
+  }
+};
+
+app.use(fileExist);
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -24,29 +48,17 @@ app.get("/", (req, res) => {
 });
 
 app.post("/", (req, res) => {
-  fs.access(fileName, function (error) {
-    if (error) {
-      res.send(fs.writeFileSync("test.json", JSON.stringify(req.body)));
-    } else {
-      res.status(500).json({ message: "File already created" });
-    }
-  });
+  res.send(fs.writeFileSync("test.json", JSON.stringify(req.body)));
 });
 
 app.put("/", function (req, res) {
   let obj = req.body;
-  fs.access(fileName, function (error) {
-    if (error) {
-      res.status(500).json({ message: "File is not found" });
-    } else {
-      let fileContent = fs.readFileSync(fileName, "utf8");
-      let fileObj = JSON.parse(fileContent);
-      for (let key in obj) {
-        fileObj[key] = obj[key];
-      }
-      res.send(fs.writeFileSync(fileName, JSON.stringify(fileObj)));
-    }
-  });
+  let fileContent = fs.readFileSync(fileName, "utf8");
+  let fileObj = JSON.parse(fileContent);
+  for (let key in obj) {
+    fileObj[key] = obj[key];
+  }
+  res.send(fs.writeFileSync(fileName, JSON.stringify(fileObj)));
 });
 
 app.delete("/", function (req, res) {
