@@ -9,25 +9,19 @@ const fileName = "test.json";
 
 const fileExist = function (req, res, next) {
   let method = req.method;
-  switch (method) {
-    case "PUT":
-      if (!fs.existsSync("./test.json")) {
-        res.status(500).json({ message: "File is not found" });
-      } else {
-        next();
-      }
-      break;
-    case "POST":
-      if (fs.existsSync("./test.json")) {
-        res.status(500).json({ message: "File already created" });
-      } else {
-        next();
-      }
-      break;
-    default:
+  if(method === "POST"){
+    if (fs.existsSync("./test.json")) {
+      res.status(500).json({ message: "File already created" });
+    } else {
       next();
-      break;
-  }
+    }
+  }else{
+    if (fs.existsSync("./test.json")) {
+      next();
+    } else {
+      res.status(500).json({ message: "File is not found!" });
+    }
+  };
 };
 
 app.use(fileExist);
