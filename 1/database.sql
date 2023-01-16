@@ -9,7 +9,5 @@ create TABLE users(
 create TABLE post(
     id SERIAL PRIMARY KEY,
     title VARCHAR(255),
-    description VARCHAR(255),
-    username_id INTEGER,
-    FOREIGN KEY (username_id) REFERENCES users (id)
+    description VARCHAR(255)
 );
